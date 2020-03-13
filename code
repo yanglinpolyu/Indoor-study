@@ -1,0 +1,296 @@
+# Indoor environmental data during the calendar month of ARI episodes
+# Indoor variable: temperature - Tmean, RH - RHmean, AH - AHmean
+# Outdoor variable: temperature - Tmean.1, RH - RHmean.1, AH - AHmean.1
+load('env.rda')
+
+# prepare single lag dataset
+env0 = env %>% filter(lagday == 0)
+env1 = env %>% filter(lagday == 1)
+env2 = env %>% filter(lagday == 2)
+env3 = env %>% filter(lagday == 3)
+env4 = env %>% filter(lagday == 4)
+env5 = env %>% filter(lagday == 5)
+env6 = env %>% filter(lagday == 6)
+
+# prepare cumulative lag dataset
+env01 = env %>% filter(between(lagday,0,1))
+env01 = aggregate(cbind(Tmean, RHmean, AHmean, Tmean.1, RHmean.1, AHmean.1,fsp, o3, rain)
+                  ~ sub.no+onset.date+ari+month+season+group+record, data = env01, mean, na.action = na.pass, na.rm = TRUE )
+
+env02 = env %>% filter(between(lagday,0,2))
+env02 = aggregate(cbind(Tmean, RHmean, AHmean, Tmean.1, RHmean.1, AHmean.1,fsp, o3, rain)
+                  ~ sub.no+onset.date+ari+month+season+group+record, data = env02, mean, na.action = na.pass, na.rm = TRUE )
+
+env03 = env %>% filter(between(lagday,0,3))
+env03 = aggregate(cbind(Tmean, RHmean, AHmean, Tmean.1, RHmean.1, AHmean.1,fsp, o3, rain)
+                  ~ sub.no+onset.date+ari+month+season+group+record, data = env03, mean, na.action = na.pass, na.rm = TRUE )
+
+env04 = env %>% filter(between(lagday,0,4))
+env04 = aggregate(cbind(Tmean, RHmean, AHmean, Tmean.1, RHmean.1, AHmean.1,fsp, o3, rain)
+                  ~ sub.no+onset.date+ari+month+season+group+record, data = env04, mean, na.action = na.pass, na.rm = TRUE )
+
+env05 = env %>% filter(between(lagday,0,5))
+env05 = aggregate(cbind(Tmean, RHmean, AHmean, Tmean.1, RHmean.1, AHmean.1,fsp, o3, rain)
+                  ~ sub.no+onset.date+ari+month+season+group+record, data = env05, mean, na.action = na.pass, na.rm = TRUE )
+
+env06 = env %>% filter(between(lagday,0,6))
+env06 = aggregate(cbind(Tmean, RHmean, AHmean, Tmean.1, RHmean.1, AHmean.1,fsp, o3, rain)
+                  ~ sub.no+onset.date+ari+month+season+group+record, data = env06, mean, na.action = na.pass, na.rm = TRUE )
+
+# Filter season
+{env0 = env0 %>% filter(between(month,5,10))
+  env01 = env01 %>% filter(between(month,5,10))
+  env02 = env02 %>% filter(between(month,5,10))
+  env03 = env03 %>% filter(between(month,5,10))
+  env04 = env04 %>% filter(between(month,5,10))
+  env05 = env05 %>% filter(between(month,5,10))
+  env06 = env06 %>% filter(between(month,5,10))
+  env1 = env1 %>% filter(between(month,5,10))
+  env2 = env2 %>% filter(between(month,5,10))
+  env3 = env3 %>% filter(between(month,5,10))
+  env4 = env4 %>% filter(between(month,5,10))
+  env5 = env5 %>% filter(between(month,5,10))
+  env6 = env6 %>% filter(between(month,5,10))}# warm: May-Oct
+{env0 = env0 %>% filter(!between(month,5,10))
+  env01 = env01 %>% filter(!between(month,5,10))
+  env02 = env02 %>% filter(!between(month,5,10))
+  env03 = env03 %>% filter(!between(month,5,10))
+  env04 = env04 %>% filter(!between(month,5,10))
+  env05 = env05 %>% filter(!between(month,5,10))
+  env06 = env06 %>% filter(!between(month,5,10))
+  env1 = env1 %>% filter(!between(month,5,10))
+  env2 = env2 %>% filter(!between(month,5,10))
+  env3 = env3 %>% filter(!between(month,5,10))
+  env4 = env4 %>% filter(!between(month,5,10))
+  env5 = env5 %>% filter(!between(month,5,10))
+  env6 = env6 %>% filter(!between(month,5,10))}# cool: Nov-Apr
+
+# single lag effect: ----------------------------------- 
+{FT.err <- function(var,dataset){
+  eval(parse(text=paste("fit = clogit((ari ==1) ~ ",var," + rain+fsp+o3+strata(record),data = ",dataset,")",sep='')))
+  c(paste(round((summary(fit)$conf.int[1,1]-1)*100,2)),
+    paste(round((summary(fit)$conf.int[1,3]-1)*100,2)),
+    paste(round((summary(fit)$conf.int[1,4]-1)*100,2)))}
+
+table.cov.er = matrix(NA,42,3)
+colnames(table.cov.er) = c("er","ler","uer")
+
+table.cov.er[1,] = c(FT.err("Tmean+RHmean","env0"))
+table.cov.er[2,] = c(FT.err("Tmean+RHmean","env1"))
+table.cov.er[3,] = c(FT.err("Tmean+RHmean","env2"))
+table.cov.er[4,] = c(FT.err("Tmean+RHmean","env3"))
+table.cov.er[5,] = c(FT.err("Tmean+RHmean","env4"))
+table.cov.er[6,] = c(FT.err("Tmean+RHmean","env5"))
+table.cov.er[7,] = c(FT.err("Tmean+RHmean","env6"))
+table.cov.er[8,] = c(FT.err("Tmean.1+RHmean.1","env0"))
+table.cov.er[9,] = c(FT.err("Tmean.1+RHmean.1","env1"))
+table.cov.er[10,] = c(FT.err("Tmean.1+RHmean.1","env2"))
+table.cov.er[11,] = c(FT.err("Tmean.1+RHmean.1","env3"))
+table.cov.er[12,] = c(FT.err("Tmean.1+RHmean.1","env4"))
+table.cov.er[13,] = c(FT.err("Tmean.1+RHmean.1","env5"))
+table.cov.er[14,] = c(FT.err("Tmean.1+RHmean.1","env6"))
+table.cov.er[15,] = c(FT.err("RHmean+Tmean","env0"))
+table.cov.er[16,] = c(FT.err("RHmean+Tmean","env1"))
+table.cov.er[17,] = c(FT.err("RHmean+Tmean","env2"))
+table.cov.er[18,] = c(FT.err("RHmean+Tmean","env3"))
+table.cov.er[19,] = c(FT.err("RHmean+Tmean","env4"))
+table.cov.er[20,] = c(FT.err("RHmean+Tmean","env5"))
+table.cov.er[21,] = c(FT.err("RHmean+Tmean","env6"))
+table.cov.er[22,] = c(FT.err("RHmean.1+Tmean.1","env0"))
+table.cov.er[23,] = c(FT.err("RHmean.1+Tmean.1","env1"))
+table.cov.er[24,] = c(FT.err("RHmean.1+Tmean.1","env2"))
+table.cov.er[25,] = c(FT.err("RHmean.1+Tmean.1","env3"))
+table.cov.er[26,] = c(FT.err("RHmean.1+Tmean.1","env4"))
+table.cov.er[27,] = c(FT.err("RHmean.1+Tmean.1","env5"))
+table.cov.er[28,] = c(FT.err("RHmean.1+Tmean.1","env6"))
+table.cov.er[29,] = c(FT.err("AHmean","env0"))
+table.cov.er[30,] = c(FT.err("AHmean","env1"))
+table.cov.er[31,] = c(FT.err("AHmean","env2"))
+table.cov.er[32,] = c(FT.err("AHmean","env3"))
+table.cov.er[33,] = c(FT.err("AHmean","env4"))
+table.cov.er[34,] = c(FT.err("AHmean","env5"))
+table.cov.er[35,] = c(FT.err("AHmean","env6"))
+table.cov.er[36,] = c(FT.err("AHmean.1","env0"))
+table.cov.er[37,] = c(FT.err("AHmean.1","env1"))
+table.cov.er[38,] = c(FT.err("AHmean.1","env2"))
+table.cov.er[39,] = c(FT.err("AHmean.1","env3"))
+table.cov.er[40,] = c(FT.err("AHmean.1","env4"))
+table.cov.er[41,] = c(FT.err("AHmean.1","env5"))
+table.cov.er[42,] = c(FT.err("AHmean.1","env6"))
+} 
+
+cov.er.all = as.data.frame(table.cov.er)
+cov.er.all$season = "All"
+cov.er.all$lag = rep(c("lag0","lag1","lag2","lag3","lag4","lag5","lag6"),times = 6)
+cov.er.all$variables = rep(c("In Tem","Out Tem","In RH","Out RH","In AH","Out AH"), each = 7)
+# repeart for warm
+cov.er.warm = as.data.frame(table.cov.er)
+cov.er.warm$season = "warm"
+cov.er.warm$lag = rep(c("lag0","lag1","lag2","lag3","lag4","lag5","lag6"),times = 6)
+cov.er.warm$variables = rep(c("In Tem","Out Tem","In RH","Out RH","In AH","Out AH"), each = 7)
+# repeart for cool
+cov.er.cool = as.data.frame(table.cov.er)
+cov.er.cool$season = "cool"
+cov.er.cool$lag = rep(c("lag0","lag1","lag2","lag3","lag4","lag5","lag6"),times = 6)
+cov.er.cool$variables = rep(c("In Tem","Out Tem","In RH","Out RH","In AH","Out AH"), each = 7)
+
+cov.er = rbind(cov.er.all, cov.er.cool, cov.er.warm)
+write.csv(cov.er, file = "ER for error bar-single.csv", row.names = F)
+
+# single lag effect: Plot error bar #################################
+ci = read.csv("ER for error bar-single.csv")
+ci$lag=factor(ci$lag,levels=c("lag0","lag1","lag2","lag3","lag4","lag5","lag6"), labels=c("0","1","2","3","4","5","6"))
+ci$season=factor(ci$season,levels=c("All","cool","warm"), labels=c("Both season", "Cool season", "Warm season"))
+
+ci.t = ci %>% filter(variables == "In Tem" | variables == "Out Tem")
+ci.rh = ci %>% filter(variables == "In RH" | variables == "Out RH")
+ci.ah = ci %>% filter(variables == "In AH" | variables == "Out AH")
+
+pd <- position_dodge(0.6)
+p.t = ggplot(ci.t, aes(x=lag, y=er, color=factor(variables))) + 
+  geom_errorbar(aes(ymin=ler, ymax=uer), size = 1, width=0.5,position = pd)+coord_cartesian(ylim = c(-36, 36))+
+  geom_point(position = pd,size=3)+geom_hline(yintercept=0, linetype="dashed", color = "grey15", size=0.5)+
+  facet_grid(cols = vars(season))+theme_classic()+
+  ylab("Excess risk%")+xlab("")+ggtitle("A. Temperature")+
+  scale_color_manual(labels = c("Indoor", "Outdoor"),values=c('firebrick','grey60'))+
+  theme(plot.title = element_text(hjust = 0, vjust=0),axis.text=element_text(),text=element_text(size=15),
+        legend.title = element_blank(),strip.text.x = element_text(size=15),
+        strip.background = element_rect(color="grey", fill="grey", size=0.5, linetype="solid"))
+
+p.rh = ggplot(ci.rh, aes(x=lag, y=er, color=factor(variables))) + 
+  geom_errorbar(aes(ymin=ler, ymax=uer), size = 1, width=0.5,position = pd)+coord_cartesian(ylim = c(-9, 8.5))+
+  geom_point(position = pd,size=3)+geom_hline(yintercept=0, linetype="dashed", color = "grey15", size=0.5)+
+  facet_grid(cols = vars(season))+theme_classic()+
+  ylab("Excess risk%")+xlab("")+ggtitle("B. Relative humidity")+
+  scale_color_manual(labels = c("Indoor", "Outdoor"),values=c('firebrick','grey60'))+
+  theme(plot.title = element_text(hjust = 0, vjust=0),axis.text=element_text(),text=element_text(size=15),
+        legend.title = element_blank(),strip.text.x = element_text(size=15),
+        strip.background = element_rect(color="grey", fill="grey", size=0.5, linetype="solid"))
+
+p.ah = ggplot(ci.ah, aes(x=lag, y=er, color=factor(variables))) + 
+  geom_errorbar(aes(ymin=ler, ymax=uer), size = 1, width=0.5,position = pd)+coord_cartesian(ylim = c(-18.5, 16))+
+  geom_point(position = pd,size=3)+geom_hline(yintercept=0, linetype="dashed", color = "grey15", size=0.5)+
+  facet_grid(cols = vars(season))+theme_classic()+
+  ylab("Excess risk%")+xlab("")+ggtitle("C. Absolute humidity")+
+  scale_color_manual(labels = c("Indoor", "Outdoor"),values=c('firebrick','grey60'))+
+  theme(plot.title = element_text(hjust = 0, vjust=0),axis.text=element_text(),text=element_text(size=15),
+        legend.title = element_blank(),strip.text.x = element_text(size=15),
+        strip.background = element_rect(color="grey", fill="grey", size=0.5, linetype="solid"))
+
+p.h = ggdraw()+
+  draw_plot(p.t, x = 0, y = 0.6566667, width = 1, height =0.3533333)+
+  draw_plot(p.rh, x = 0.007, y = 0.3333333, width = 0.995, height =0.3533333)+
+  draw_plot(p.ah, x = 0, y = 0.01, width = 1, height = 0.3533333)+
+  draw_plot_label(label = "Lag day", size = 12, x = 0.46, y = 0.02, hjust = 0, vjust = 0)
+
+# cumulative lag effect: ----------------------------------- 
+{FT.err <- function(var,dataset){
+  eval(parse(text=paste("fit = clogit((ari ==1) ~ ",var," +rain+fsp+o3+strata(record),data = ",dataset,")",sep='')))
+  c(paste(round((summary(fit)$conf.int[1,1]-1)*100,2)),
+    paste(round((summary(fit)$conf.int[1,3]-1)*100,2)),
+    paste(round((summary(fit)$conf.int[1,4]-1)*100,2)))}
+
+table.cov.er = matrix(NA,36,3)
+colnames(table.cov.er) = c("er","ler","uer")
+
+table.cov.er[1,] = c(FT.err("Tmean+RHmean","env01"))
+table.cov.er[2,] = c(FT.err("Tmean+RHmean","env02"))
+table.cov.er[3,] = c(FT.err("Tmean+RHmean","env03"))
+table.cov.er[4,] = c(FT.err("Tmean+RHmean","env04"))
+table.cov.er[5,] = c(FT.err("Tmean+RHmean","env05"))
+table.cov.er[6,] = c(FT.err("Tmean+RHmean","env06"))
+table.cov.er[7,] = c(FT.err("Tmean.1+RHmean.1","env01"))
+table.cov.er[8,] = c(FT.err("Tmean.1+RHmean.1","env02"))
+table.cov.er[9,] = c(FT.err("Tmean.1+RHmean.1","env03"))
+table.cov.er[10,] = c(FT.err("Tmean.1+RHmean.1","env04"))
+table.cov.er[11,] = c(FT.err("Tmean.1+RHmean.1","env05"))
+table.cov.er[12,] = c(FT.err("Tmean.1+RHmean.1","env06"))
+table.cov.er[13,] = c(FT.err("RHmean+Tmean","env01"))
+table.cov.er[14,] = c(FT.err("RHmean+Tmean","env02"))
+table.cov.er[15,] = c(FT.err("RHmean+Tmean","env03"))
+table.cov.er[16,] = c(FT.err("RHmean+Tmean","env04"))
+table.cov.er[17,] = c(FT.err("RHmean+Tmean","env05"))
+table.cov.er[18,] = c(FT.err("RHmean+Tmean","env06"))
+table.cov.er[19,] = c(FT.err("RHmean.1+Tmean.1","env01"))
+table.cov.er[20,] = c(FT.err("RHmean.1+Tmean.1","env02"))
+table.cov.er[21,] = c(FT.err("RHmean.1+Tmean.1","env03"))
+table.cov.er[22,] = c(FT.err("RHmean.1+Tmean.1","env04"))
+table.cov.er[23,] = c(FT.err("RHmean.1+Tmean.1","env05"))
+table.cov.er[24,] = c(FT.err("RHmean.1+Tmean.1","env06"))
+table.cov.er[25,] = c(FT.err("AHmean","env01"))
+table.cov.er[26,] = c(FT.err("AHmean","env02"))
+table.cov.er[27,] = c(FT.err("AHmean","env03"))
+table.cov.er[28,] = c(FT.err("AHmean","env04"))
+table.cov.er[29,] = c(FT.err("AHmean","env05"))
+table.cov.er[30,] = c(FT.err("AHmean","env06"))
+table.cov.er[31,] = c(FT.err("AHmean.1","env01"))
+table.cov.er[32,] = c(FT.err("AHmean.1","env02"))
+table.cov.er[33,] = c(FT.err("AHmean.1","env03"))
+table.cov.er[34,] = c(FT.err("AHmean.1","env04"))
+table.cov.er[35,] = c(FT.err("AHmean.1","env05"))
+table.cov.er[36,] = c(FT.err("AHmean.1","env06"))
+} 
+
+cov.er.all1 = as.data.frame(table.cov.er)
+cov.er.all1$season = "All"
+cov.er.all1$lag = rep(c("lag01","lag02","lag03","lag04","lag05","lag06"),times = 6)
+cov.er.all1$variables = rep(c("In Tem","Out Tem","In RH","Out RH","In AH","Out AH"), each = 6)
+# repeart for warm
+cov.er.warm1 = as.data.frame(table.cov.er)
+cov.er.warm1$season = "warm"
+cov.er.warm1$lag = rep(c("lag01","lag02","lag03","lag04","lag05","lag06"),times = 6)
+cov.er.warm1$variables = rep(c("In Tem","Out Tem","In RH","Out RH","In AH","Out AH"), each = 6)
+# repeart for cool
+cov.er.cool1 = as.data.frame(table.cov.er)
+cov.er.cool1$season = "cool"
+cov.er.cool1$lag = rep(c("lag01","lag02","lag03","lag04","lag05","lag06"),times = 6)
+cov.er.cool1$variables = rep(c("In Tem","Out Tem","In RH","Out RH","In AH","Out AH"), each = 6)
+
+cov.er = rbind(cov.er.all1, cov.er.cool1, cov.er.warm1)
+write.csv(cov.er, file = "ER for error bar-cum.csv", row.names = F)
+
+# cumulative lag effect: Plot error bar #################################
+ci = read.csv("ER for error bar-cum.csv")
+ci$lag=factor(ci$lag,levels=c("lag01","lag02","lag03","lag04","lag05","lag06"), labels=c("01","02","03","04","05","06"))
+ci$season=factor(ci$season,levels=c("All","cool","warm"), labels=c("Both season", "Cool season", "Warm season"))
+
+ci.t = ci %>% filter(variables == "In Tem" | variables == "Out Tem")
+ci.rh = ci %>% filter(variables == "In RH" | variables == "Out RH")
+ci.ah = ci %>% filter(variables == "In AH" | variables == "Out AH")
+
+pd <- position_dodge(0.6)
+p.t = ggplot(ci.t, aes(x=lag, y=er, color=factor(variables))) + 
+  geom_errorbar(aes(ymin=ler, ymax=uer), size = 1, width=0.5,position = pd)+coord_cartesian(ylim = c(-36, 36))+
+  geom_point(position = pd,size=3)+geom_hline(yintercept=0, linetype="dashed", color = "grey20", size=0.5)+
+  facet_grid(cols = vars(season))+theme_classic()+
+  ylab("Excess risk%")+xlab("")+ggtitle("A. Temperature")+
+  scale_color_manual(labels = c("Indoor", "Outdoor"),values=c('firebrick','grey60'))+
+  theme(plot.title = element_text(hjust = 0, vjust=0),axis.text=element_text(),text=element_text(size=15),
+        legend.title = element_blank(),strip.text.x = element_text(size=15),
+        strip.background = element_rect(color="grey", fill="grey", size=0.5, linetype="solid"))
+
+p.rh = ggplot(ci.rh, aes(x=lag, y=er, color=factor(variables))) + 
+  geom_errorbar(aes(ymin=ler, ymax=uer), size = 1, width=0.5,position = pd)+coord_cartesian(ylim = c(-9, 8.5))+
+  geom_point(position = pd,size=3)+geom_hline(yintercept=0, linetype="dashed", color = "grey20", size=0.5)+
+  facet_grid(cols = vars(season))+theme_classic()+
+  ylab("Excess risk%")+xlab("")+ggtitle("B. Relative humidity")+
+  scale_color_manual(labels = c("Indoor", "Outdoor"),values=c('firebrick','grey60'))+ 
+  theme(plot.title = element_text(hjust = 0, vjust=0),axis.text=element_text(),text=element_text(size=15),
+        legend.title = element_blank(),strip.text.x = element_text(size=15),
+        strip.background = element_rect(color="grey", fill="grey", size=0.5, linetype="solid"))
+
+p.ah = ggplot(ci.ah, aes(x=lag, y=er, color=factor(variables))) + 
+  geom_errorbar(aes(ymin=ler, ymax=uer), size = 1, width=0.5,position = pd)+coord_cartesian(ylim = c(-18.5, 16))+
+  geom_point(position = pd,size=3)+geom_hline(yintercept=0, linetype="dashed", color = "grey20", size=0.5)+
+  facet_grid(cols = vars(season))+theme_classic()+
+  ylab("Excess risk%")+xlab("")+ggtitle("C. Absolute humidity")+
+  scale_color_manual(labels = c("Indoor", "Outdoor"),values=c('firebrick','grey60'))+
+  theme(plot.title = element_text(hjust = 0, vjust=0),axis.text=element_text(),text=element_text(size=15),
+        legend.title = element_blank(),strip.text.x = element_text(size=15),
+        strip.background = element_rect(color="grey", fill="grey", size=0.5, linetype="solid"))
+
+p.h = ggdraw()+
+  draw_plot(p.t, x = 0, y = 0.6566667, width = 1, height =0.3533333)+
+  draw_plot(p.rh, x = 0.007, y = 0.3333333, width = 0.995, height =0.3533333)+
+  draw_plot(p.ah, x = 0, y = 0.01, width = 1, height = 0.3533333)+
+  draw_plot_label(label = "Lag day", size = 12, x = 0.46, y = 0.02, hjust = 0, vjust = 0)
