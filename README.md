@@ -1,1 +1,1 @@
-# Indoor-study
+# Indoor environment and acute respiratory illness study
