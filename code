@@ -1,6 +1,7 @@
-# Indoor environmental data during the calendar month of ARI episodes
-# Indoor variable: temperature - Tmean, RH - RHmean, AH - AHmean
-# Outdoor variable: temperature - Tmean.1, RH - RHmean.1, AH - AHmean.1
+# Individual indoor environmental data during the calendar month of 168 ARI episodes were uploaded
+# Indoor variables: temperature - Tmean, RH - RHmean, AH - AHmean
+# Outdoor variables: temperature - Tmean.1, RH - RHmean.1, AH - AHmean.1
+
 load('env.rda')
 
 # prepare single lag dataset
